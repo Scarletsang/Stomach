@@ -133,7 +133,7 @@ struct Stomach
 };
 
 extern struct Stomach_Lexer_Output  Stomach_Lexer(struct Stomach_String input, struct Stomach_Arena* arena);
-extern struct Stomach_Parser_Output Stomach_Parser(struct Stomach_Parser parser, struct Stomach_Lexer lexer);
+extern struct Stomach_Parser_Output Stomach_Parser(struct Stomach_Parser* parser, struct Stomach_Lexeri* lexer);
 
 void  Stomach_init(struct Stomach* stomach);
 void  Stomach_reset(struct Stomach* stomach);
