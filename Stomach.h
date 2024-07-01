@@ -15,13 +15,11 @@
 #define STOMACH_INPUT_STRING_SIZE (4 KB)
 #endif
 
-#ifndef STOMACH_TOKENS_SIZE
-#define STOMACH_TOKENS_SIZE (4 KB)
+#ifndef STOMACH_TOKEN_STACK_SIZE
+#define STOMACH_TOKEN_STACK_SIZE (512)
 #endif
 
-#ifndef STOMACH_TOKENS_AMOUNT
-#define STOMACH_TOKENS_AMOUNT 256
-#endif
+#define STOMACH_TOKEN_STACK_AMOUNT (STOMACH_TOKEN_STACK_SIZE / sizeof(struct Stomach_Token))
 
 #ifndef STOMACH_PARSE_TREE_SIZE
 #define STOMACH_PARSE_TREE_SIZE (128 KB)
@@ -38,8 +36,8 @@ typedef void*     Stomach_Arena_Snapshot;
 struct Stomach_Arena
 {
   void*       fill_pointer;
-  Stomach_u64 capacity;
   void*       data;
+  Stomach_u64 capacity;
 };
 
 void* Stomach_Arena_fill(struct Stomach_Arena* arena, Stomach_u64 size); // will align the item
@@ -65,13 +63,6 @@ struct Stomach_String
   Stomach_u64 length;
 };
 
-struct Stomach_Token;
-struct Stomach_Lexer_Output
-{
-  struct Stomach_Token* data;
-  Stomach_u64           length;
-};
-
 struct Stomach_Parse_Node;
 struct Stomach_Parser_Output
 {
@@ -87,14 +78,27 @@ struct Stomach_Token
   struct Stomach_String content;
 };
 
+struct Stomach_Lexer_Output
+{
+  struct Stomach_Token  data;
+  Stomach_u64           length;
+  bool                  trigger_read;
+};
+
 struct Stomach_Lexer
 {
-  Stomach_Array         array_input_string;
-  struct Stomach_Arena  arena_tokens;
-  Stomach_Array         tokens; // data is Stomach_Token**
-  int                   start_of_array; // to make the tokens array a circular one
-  int                   fd;
-  struct Stomach_String input;
+  Stomach_Array             array_input_string;
+  union
+  {
+    struct
+    {
+      struct Stomach_Token* token_stack_end; // minus one then it is the top of the stack
+      struct Stomach_Token* token_stack_bottom;
+    };
+    Stomach_Array           token_stack; // data is Stomach_Token*
+  };
+  int                       fd;
+  struct Stomach_String     input;
 };
 
 struct Stomach_Parse_Tree_Node
@@ -122,23 +126,20 @@ struct Stomach
   struct Stomach_Lexer  lexer;
   struct Stomach_Parser parser;
 
-  uint8_t memory_temporary[STOMACH_TEMPORARY_SIZE];
-  char input_string[STOMACH_INPUT_STRING_SIZE];
-  union
-  {
-    struct Stomach_Token*  tokens[STOMACH_TOKENS_AMOUNT];
-    uint8_t memory_tokens[STOMACH_TOKENS_SIZE];
-  };
-  uint8_t memory_parse_tree[STOMACH_PARSE_TREE_SIZE];
+  uint8_t               memory_temporary[STOMACH_TEMPORARY_SIZE];
+  char                  input_string[STOMACH_INPUT_STRING_SIZE];
+  struct Stomach_Token  token_stack[STOMACH_TOKEN_STACK_AMOUNT];
+  uint8_t               memory_parse_tree[STOMACH_PARSE_TREE_SIZE];
 };
 
-extern struct Stomach_Lexer_Output  Stomach_Lexer(struct Stomach_String input, struct Stomach_Arena* arena);
+extern struct Stomach_Lexer_Output  Stomach_Lexer(struct Stomach_String input);
 extern struct Stomach_Parser_Output Stomach_Parser(struct Stomach_Parser* parser, struct Stomach_Lexeri* lexer);
 
 void  Stomach_init(struct Stomach* stomach);
 void  Stomach_reset(struct Stomach* stomach);
 void  Stomach_Lexer_set_input_file(struct Stomach_Lexer* lexer, int fd);
 void  Stomach_Lexer_set_input_string(struct Stomach_Lexer* lexer, struct Stomach_String input_string);
-int   Stomach_lex(struct Stomach_Lexer* lexer, uint32_t amount_of_token);
+struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer);
+void                  Stomach_lex_revert(struct Stomach_Lexer* lexer, struct Stomach_Token token);
 
 #endif
