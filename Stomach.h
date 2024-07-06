@@ -151,14 +151,14 @@ struct Stomach
   uint8_t               memory_parse_tree[STOMACH_PARSE_TREE_SIZE];
 };
 
-extern struct Stomach_Lexer_Output  Stomach_Lexer(Stomach_String input);
-extern struct Stomach_Parser_Output Stomach_Parser(struct Stomach_Parser* parser, struct Stomach_Lexer* lexer);
+typedef struct Stomach_Lexer_Output  (*Stomach_Lexer_Func)(Stomach_String input);
+typedef struct Stomach_Parser_Output (*Stomach_Parser_Func)(struct Stomach_Parser* parser, struct Stomach_Lexer* lexer);
 
 void  Stomach_init(struct Stomach* stomach);
 void  Stomach_reset(struct Stomach* stomach);
 void  Stomach_Lexer_set_input_file(struct Stomach_Lexer* lexer, int fd);
 void  Stomach_Lexer_push_input_string(struct Stomach_Lexer* lexer, Stomach_String input_string);
-struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer);
+struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Func func);
 void                  Stomach_lex_revert(struct Stomach_Lexer* lexer, struct Stomach_Token token);
 
 #endif

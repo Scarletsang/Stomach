@@ -10,14 +10,14 @@ A Simple library that provides a simple setup for a recursive descent parser. No
 #include <fcntl.h>
 #include <unistd.h>
 
-struct Stomach_Lexer_Output  Stomach_Lexer(struct Stomach_String input)
+struct Stomach_Lexer_Output  My_Lexer(struct Stomach_String input)
 {
     // user-defined lexer
 }
 
-struct Stomach_Parser_Output Stomach_Parser(struct Stomach_Parser* parser, struct Stomach_Lexer* lexer)
+struct Stomach_Parser_Output My_Parser(struct Stomach_Parser* parser, struct Stomach_Lexer* lexer)
 {
-    struct Stomach_Lexer_Output output = Stomach_lex(lexer); // If there is no enough string, lexer will try to read more bytes from the file
+    struct Stomach_Lexer_Output output = Stomach_lex(lexer, &My_Lexer); // If there is no enough string, lexer will try to read more bytes from the file
     struct Stomach_Token token = output.data;
     // user-defined parser
 }

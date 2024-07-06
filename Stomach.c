@@ -117,7 +117,7 @@ void  Stomach_Lexer_push_input_string(struct Stomach_Lexer* lexer, Stomach_Strin
   memcpy(input_string_dest, input_string.data, input_string.length); 
 }
 
-struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer)
+struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Func lexer_func)
 {
   struct Stomach_Token token = {0};
   // if there is tokens left on the stack, pop it
@@ -129,7 +129,7 @@ struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer)
   }
   else
   {
-    struct Stomach_Lexer_Output output = Stomach_Lexer(lexer->input);
+    struct Stomach_Lexer_Output output = lexer_func(lexer->input);
     if ((lexer->fd != -1) && (lexer->state == kLexerOk))
     {
       while (output.trigger_read)
@@ -157,7 +157,7 @@ struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer)
         {
           Stomach_Lexer_push_input_string(lexer, (Stomach_String) {.string = lexer->read_string, .length = size});
         }
-        output = Stomach_Lexer(lexer->input);
+        output = lexer_func(lexer->input);
       }
     }
     if (Stomach_Slice_is_valid(output.data.content))
