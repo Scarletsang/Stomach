@@ -143,7 +143,7 @@ extern struct Stomach_Parser_Output Stomach_Parser(struct Stomach_Parser* parser
 void  Stomach_init(struct Stomach* stomach);
 void  Stomach_reset(struct Stomach* stomach);
 void  Stomach_Lexer_set_input_file(struct Stomach_Lexer* lexer, int fd);
-void  Stomach_Lexer_set_input_string(struct Stomach_Lexer* lexer, struct Stomach_String input_string);
+void  Stomach_Lexer_push_input_string(struct Stomach_Lexer* lexer, Stomach_String input_string);
 struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer);
 void                  Stomach_lex_revert(struct Stomach_Lexer* lexer, struct Stomach_Token token);
 

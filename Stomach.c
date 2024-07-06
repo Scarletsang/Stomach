@@ -110,9 +110,9 @@ void  Stomach_Lexer_set_input_file(struct Stomach_Lexer* lexer, int fd)
   lexer->fd = fd;
 }
 
-void  Stomach_Lexer_set_input_string(struct Stomach_Lexer* lexer, struct Stomach_String input_string)
+void  Stomach_Lexer_push_input_string(struct Stomach_Lexer* lexer, Stomach_String input_string)
 {
-  char* input_string_dest = Stomach_Array_push(&lexer->array_input_string, sizeof(char)* input_string.length);
+  char* input_string_dest = Stomach_Array_push(&lexer->input_string, sizeof(char)* input_string.length);
   memcpy(input_string_dest, input_string.data, input_string.length); 
 }
 
