@@ -31,13 +31,18 @@
 #define NULL (0)
 #endif
 
+#define TRUE  1
+#define FALSE 0
+
+typedef int32_t   Stomach_b32;
+typedef int64_t   Stomach_i64;
 typedef uint64_t  Stomach_u64;
 typedef void*     Stomach_Arena_Snapshot;
 struct Stomach_Arena
 {
   void*       fill_pointer;
   void*       data;
-  Stomach_u64 capacity;
+  Stomach_u64 capacity; // in bytes
 };
 
 void* Stomach_Arena_fill(struct Stomach_Arena* arena, Stomach_u64 size); // will align the item
@@ -69,7 +74,7 @@ struct Stomach_Parser_Output
   Stomach_u64                 length;
 };
 
-int Stomach_Slice_is_valid(struct Stomach_Slice slice);
+Stomach_b32 Stomach_Slice_is_valid(struct Stomach_Slice slice);
 
 struct Stomach_Token
 {
@@ -81,7 +86,7 @@ struct Stomach_Lexer_Output
 {
   struct Stomach_Token  data;
   Stomach_u64           length;
-  bool                  trigger_read;
+  Stomach_b32           trigger_read;
 };
 
 struct Stomach_Lexer
