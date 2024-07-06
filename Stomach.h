@@ -7,6 +7,10 @@
 #define MB  * (1048576)
 #define GB  * (uint64_t)(1073741824)
 
+#ifndef STOMACH_LEXER_READ_SIZE
+#define STOMACH_LEXER_READ_SIZE (1 KB)
+#endif
+
 #ifndef STOMACH_TEMPORARY_SIZE
 #define STOMACH_TEMPORARY_SIZE  (1 KB)
 #endif
@@ -90,9 +94,19 @@ struct Stomach_Lexer_Output
   Stomach_b32           trigger_read;
 };
 
+enum Stomach_Lexer_State
+{
+  kLexerOk = 0,
+  kLexerReadError,
+  kLexerEof
+};
+
 struct Stomach_Lexer
 {
-  Stomach_Array             array_input_string;
+  Stomach_Array             input_string;
+  char                      read_string[STOMACH_LEXER_READ_SIZE];
+  Stomach_u64               read_string_leftover_size;
+  enum Stomach_Lexer_State  state;
   union
   {
     struct

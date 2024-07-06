@@ -1,5 +1,6 @@
 #include "Stomach.h"
 #include <string.h>
+#include <unistd.h>
 #include <assert.h>
 
 void* Stomach_Arena_fill(struct Stomach_Arena* arena, Stomach_u64 size)
@@ -83,9 +84,9 @@ void  Stomach_init(struct Stomach* stomach)
   stomach->arena_temporary.data = stomach->memory_temporary;
   stomach->arena_temporary.fill_pointer = stomach->memory_temporary;
   stomach->arena_temporary.capacity = STOMACH_TEMPORARY_SIZE;
-  stomach->lexer.array_input_string.data = stomach->input_string;
-  stomach->lexer.array_input_string.fill_pointer = stomach->input_string;
-  stomach->lexer.array_input_string.capacity = STOMACH_INPUT_STRING_SIZE;
+  stomach->lexer.input_string.data = stomach->input_string;
+  stomach->lexer.input_string.fill_pointer = stomach->input_string;
+  stomach->lexer.input_string.capacity = STOMACH_INPUT_STRING_SIZE;
   stomach->lexer = (struct Stomach_Lexer) {0};
   stomach->lexer.fd = -1;
   stomach->lexer.token_stack.data = stomach->token_stack;
@@ -99,7 +100,7 @@ void  Stomach_init(struct Stomach* stomach)
 void  Stomach_reset(struct Stomach* stomach)
 {
   Stomach_Arena_clear(&stomach->arena_temporary);
-  Stomach_Arena_clear(&stomach->lexer.array_input_string);
+  Stomach_Arena_clear(&stomach->lexer.input_string);
   Stomach_Arena_clear(&stomach->lexer.token_stack);
   stomach->lexer.fd = -1;
   Stomach_Arena_clear(&stomach->parser.arena_parse_tree);
@@ -118,16 +119,55 @@ void  Stomach_Lexer_push_input_string(struct Stomach_Lexer* lexer, Stomach_Strin
 
 struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer)
 {
+  struct Stomach_Token token = {0};
   // if there is tokens left on the stack, pop it
   if (lexer->token_stack_end != lexer->token_stack_bottom)
   {
     struct Stomach_Token* token_ptr = lexer->token_stack_end - 1;
-    struct Stomach_Token token = *token_ptr;
+    token = *token_ptr;
     lexer->token_stack_end = token_ptr;
-    return token;
   }
-  // struct Stomach_Lexer_Output output = Stomach_Lexer(lexer->input); 
-  // if 
+  else
+  {
+    struct Stomach_Lexer_Output output = Stomach_Lexer(lexer->input);
+    if ((lexer->fd != -1) && (lexer->state == kLexerOk))
+    {
+      while (output.trigger_read)
+      {
+        Stomach_i64 size = read(lexer->fd, lexer->read_string + lexer->read_string_leftover_size, STOMACH_LEXER_READ_SIZE - lexer->read_string_leftover_size);
+        lexer->read_string_leftover_size = 0;
+        if (size == -1)
+        {
+          lexer->state = kLexerReadError;
+          break;
+        }
+        else if (size == 0)
+        {
+          lexer->state = kLexerEof;
+          break;
+        }
+        else if ((Stomach_u64) size > Stomach_Array_avaliable(&lexer->input_string))
+        {
+          Stomach_u64 avaliable_size = Stomach_Array_avaliable(&lexer->input_string);
+          Stomach_Lexer_push_input_string(lexer, (Stomach_String) {.string = lexer->read_string, .length = avaliable_size});
+          lexer->read_string_leftover_size = size - avaliable_size;
+          memmove(lexer->read_string, lexer->read_string + avaliable_size, lexer->read_string_leftover_size);
+        }
+        else
+        {
+          Stomach_Lexer_push_input_string(lexer, (Stomach_String) {.string = lexer->read_string, .length = size});
+        }
+        output = Stomach_Lexer(lexer->input);
+      }
+    }
+    if (Stomach_Slice_is_valid(output.data.content))
+    {
+      token = output.data;
+      lexer->input.string += output.length;
+      lexer->input.length -= output.length;
+    }
+  }
+  return token;
 }
 
 void  Stomach_lex_revert(struct Stomach_Lexer* lexer, struct Stomach_Token token)
