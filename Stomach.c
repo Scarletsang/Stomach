@@ -68,6 +68,16 @@ Stomach_u64  Stomach_Array_size(Stomach_Array* array, Stomach_u64 item_size)
   return ((uint8_t*)array->fill_pointer - (uint8_t*)array->data) / item_size;
 }
 
+Stomach_u64   Stomach_Array_avaliable(Stomach_Array* array)
+{
+  return array->capacity - ((uint8_t*)array->fill_pointer - (uint8_t*)array->data);
+}
+
+Stomach_b32 Stomach_Slice_is_valid(struct Stomach_Slice slice)
+{
+  return (slice.data != NULL);
+}
+
 void  Stomach_init(struct Stomach* stomach)
 {
   stomach->arena_temporary.data = stomach->memory_temporary;

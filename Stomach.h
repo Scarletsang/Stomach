@@ -55,6 +55,7 @@ typedef struct Stomach_Arena  Stomach_Array;
 
 void*         Stomach_Array_push(Stomach_Array* array, Stomach_u64 item_size); // should not need to align the item
 Stomach_u64   Stomach_Array_size(Stomach_Array* array, Stomach_u64 item_size);
+Stomach_u64   Stomach_Array_avaliable(Stomach_Array* array);
 
 struct Stomach_Slice
 {
