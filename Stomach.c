@@ -99,6 +99,7 @@ void  Stomach_init(struct Stomach* stomach)
   stomach->lexer.input_string.data = stomach->input_string;
   stomach->lexer.input_string.fill_pointer = stomach->input_string;
   stomach->lexer.input_string.capacity = STOMACH_INPUT_STRING_SIZE;
+  stomach->lexer.input.data = stomach->input_string;
   stomach->lexer.fd = -1;
   stomach->lexer.token_stack.data = stomach->token_stack;
   stomach->lexer.token_stack.fill_pointer = stomach->token_stack;
@@ -126,6 +127,7 @@ void  Stomach_Lexer_push_input_string(struct Stomach_Lexer* lexer, Stomach_Strin
 {
   char* input_string_dest = Stomach_Array_push(&lexer->input_string, sizeof(char)* input_string.length);
   memcpy(input_string_dest, input_string.data, input_string.length); 
+  lexer->input.length += input_string.length;
 }
 
 struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Func lexer_func)
