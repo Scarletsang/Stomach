@@ -16,8 +16,9 @@ LIBSTOMACH:=../stomach.a
 LDFLAGS += -I ..
 
 math_expr: $(LIBSTOMACH) math_expr.c
-	@$(CC) $(CFLAGS) $(LIBSTOMACH) math_expr.c $(LDFLAGS) -o math_expr && echo "Compilation successful"
+	@$(CC) $(CFLAGS) $(LIBSTOMACH) math_expr.c $(LDFLAGS) -o math_expr.out && echo "math_expr.out Compilation successful"
 
 $(LIBSTOMACH):
-	$(MAKE) $(if $(DEBUG),DEBUG=1,) $(if $(FSANITIZE),FSANITIZE=1,) -C ..
+	@$(MAKE) $(if $(DEBUG),DEBUG=1,) $(if $(FSANITIZE),FSANITIZE=1,) -C ..
 
+.PHONY: $(LIBSTOMACH)

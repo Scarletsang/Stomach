@@ -17,7 +17,7 @@ SRCS:= Stomach.c
 OBJS:= $(SRCS:.c=.o)
 
 all: $(OBJS)
-	@ar rcs $(NAME) $(OBJS) && echo "Compilation successful"
+	@ar rcs $(NAME) $(OBJS) && echo "$(NAME) Compilation successful"
 
 clean:
 	rm -f $(OBJS)
