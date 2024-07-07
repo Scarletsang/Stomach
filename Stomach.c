@@ -95,10 +95,10 @@ void  Stomach_init(struct Stomach* stomach)
   stomach->arena_temporary.data = stomach->memory_temporary;
   stomach->arena_temporary.fill_pointer = stomach->memory_temporary;
   stomach->arena_temporary.capacity = STOMACH_TEMPORARY_SIZE;
+  stomach->lexer = (struct Stomach_Lexer) {0};
   stomach->lexer.input_string.data = stomach->input_string;
   stomach->lexer.input_string.fill_pointer = stomach->input_string;
   stomach->lexer.input_string.capacity = STOMACH_INPUT_STRING_SIZE;
-  stomach->lexer = (struct Stomach_Lexer) {0};
   stomach->lexer.fd = -1;
   stomach->lexer.token_stack.data = stomach->token_stack;
   stomach->lexer.token_stack.fill_pointer = stomach->token_stack;
