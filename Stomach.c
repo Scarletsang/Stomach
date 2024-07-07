@@ -142,10 +142,10 @@ struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Fun
   }
   else
   {
-    struct Stomach_Lexer_Output output = lexer_func(lexer->input);
+    struct Stomach_Lexer_Output output = {0};
     if ((lexer->fd != -1) && (lexer->state == kLexerOk))
     {
-      while (output.trigger_read)
+      while ((lexer->input.length == 0) || output.trigger_read)
       {
         Stomach_i64 size = read(lexer->fd, lexer->read_string + lexer->read_string_leftover_size, STOMACH_LEXER_READ_SIZE - lexer->read_string_leftover_size);
         lexer->read_string_leftover_size = 0;
@@ -172,6 +172,10 @@ struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Fun
         }
         output = lexer_func(lexer->input);
       }
+    }
+    else if (lexer->input.length > 0)
+    {
+      output = lexer_func(lexer->input);
     }
     if (Stomach_Slice_is_valid(output.data.content))
     {
