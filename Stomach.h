@@ -61,23 +61,19 @@ void*         Stomach_Array_push(Stomach_Array* array, Stomach_u64 item_size); /
 Stomach_u64   Stomach_Array_size(Stomach_Array* array, Stomach_u64 item_size);
 Stomach_u64   Stomach_Array_avaliable(Stomach_Array* array);
 
+struct Stomach_Parse_Node;
 struct Stomach_Slice
 {
   union
   {
-    void*       data;
-    char*       string;
+    void*                       data;
+    char*                       string;
+    struct Stomach_Parse_Node*  parse_node;
   };
   Stomach_u64   length;
 };
 typedef struct Stomach_Slice Stomach_String;
-
-struct Stomach_Parse_Node;
-struct Stomach_Parser_Output
-{
-  struct Stomach_Parse_Node*  data;
-  Stomach_u64                 length;
-};
+typedef struct Stomach_Slice Stomach_Parser_Output;
 
 Stomach_b32 Stomach_Slice_is_valid(struct Stomach_Slice slice);
 
@@ -152,7 +148,7 @@ struct Stomach
 };
 
 typedef struct Stomach_Lexer_Output  (*Stomach_Lexer_Func)(Stomach_String input);
-typedef struct Stomach_Parser_Output (*Stomach_Parser_Func)(struct Stomach_Parser* parser, struct Stomach_Lexer* lexer);
+typedef Stomach_Parser_Output        (*Stomach_Parser_Func)(struct Stomach_Parser* parser, struct Stomach_Lexer* lexer);
 
 void  Stomach_init(struct Stomach* stomach);
 void  Stomach_reset(struct Stomach* stomach);
