@@ -147,7 +147,11 @@ struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Fun
     struct Stomach_Lexer_Output output = {0};
     if ((lexer->fd != -1) && (lexer->state == kLexerOk))
     {
-      while ((lexer->input.length == 0) || output.trigger_read)
+      if (lexer->input.length != 0)
+      {
+        output = lexer_func(lexer->input, lexer->state == kLexerEof);
+      }
+      while (((lexer->input.length == 0) || output.trigger_read) && (lexer->state == kLexerOk))
       {
         Stomach_i64 size = read(lexer->fd, lexer->read_string + lexer->read_string_leftover_size, STOMACH_LEXER_READ_SIZE - lexer->read_string_leftover_size);
         lexer->read_string_leftover_size = 0;
