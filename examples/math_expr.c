@@ -11,11 +11,11 @@ enum Token_Type
   kDivide,
   kLeftParentheses,
   kRightParentheses,
-  kDot,
-  kNumber
+  kInteger,
+  kFloat
 };
 
-// Tokens: '+', '-', '*', '/', '(', ')', '.', NUM
+// Tokens: '+', '-', '*', '/', '(', ')', INTEGER, FLOAT
 // expression
 //     ::= term (('+' | '-' ) term)*
 // term
@@ -89,22 +89,21 @@ struct Stomach_Lexer_Output  my_lexer(Stomach_String input, Stomach_b32 is_eof)
     output.data.content = (Stomach_String) {.string = input.string, .length = 1};
     output.length += 1;
   }
-  else if (first_char == '.')
-  {
-    output.data.type = kDot;
-    output.data.content = (Stomach_String) {.string = input.string, .length = 1};
-    output.length += 1;
-  }
   else
   {
     Stomach_u64 i = 0;
-    for (; (i < input.length) && is_digit(input.string[i]); i++)
+    for (; (i < input.length) && is_digit(input.string[i]); i++);
+    int type = kInteger;
+    if ((i != 0) && (input.string[i] == '.'))
     {
-      output.length++;
+      i++;
+      type = kFloat;
+      for (; (i < input.length) && is_digit(input.string[i]); i++);
     }
+    output.length += i;
     if ((i != 0) && (is_eof || (i < input.length)))
     {
-      output.data.type = kNumber;
+      output.data.type = type;
       output.data.content = (Stomach_String) {.string = input.string, .length = i};
     }
     else
