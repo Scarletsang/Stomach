@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 enum Token_Type
 {
@@ -13,6 +14,14 @@ enum Token_Type
   kRightParentheses,
   kInteger,
   kFloat
+};
+
+enum ParseNode_Type
+{
+  kNodeInteger,
+  kNodeFloat,
+  kNodeOperator,
+  kNodeScope
 };
 
 // Tokens: '+', '-', '*', '/', '(', ')', INTEGER, FLOAT
@@ -36,7 +45,7 @@ enum Token_Type
 
 Stomach_b32 is_white_space(char c)
 {
-  return ((c == ' ') || (c == '\t'));
+  return ((c == ' ') || (c == '\t') || (c == '\n'));
 }
 
 Stomach_b32 is_digit(char c)
@@ -130,15 +139,33 @@ Stomach_Parser_Output my_parser(struct Stomach_Parser* parser, struct Stomach_Le
 int main(int argc, char**argv)
 {
   static struct Stomach stomach;
-  if (argc != 2)
-    return 1;
   Stomach_init(&stomach);
-  Stomach_Lexer_push_input_string(&stomach.lexer, (Stomach_String){.string = argv[1], .length = strlen(argv[1])});
+  if (argc == 2)
+  {
+    Stomach_Lexer_push_input_string(&stomach.lexer, (Stomach_String){.string = argv[1], .length = strlen(argv[1])});
+  }
+  else if ((argc == 3) && (strcmp(argv[1], "--") == 0))
+  {
+    int fd = open(argv[2], O_RDONLY, 0644);
+    if (fd == -1)
+    {
+      return 1;
+    }
+    Stomach_Lexer_set_input_file(&stomach.lexer, fd);
+  }
+  else
+  {
+    return 1;
+  }
   Stomach_Parser_Output output = my_parser(&stomach.parser, &stomach.lexer);
   if (Stomach_Slice_is_valid(output))
   {
     // struct Stomach_Parse_Tree_Node* parse_tree_root = output.data;
     // do something with the parse tree
+  }
+  if (stomach.lexer.fd != -1)
+  {
+    close(stomach.lexer.fd);
   }
   return 0;
 }
