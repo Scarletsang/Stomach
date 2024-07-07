@@ -19,5 +19,5 @@ math_expr: $(LIBSTOMACH) math_expr.c
 	@$(CC) $(CFLAGS) $(LIBSTOMACH) math_expr.c $(LDFLAGS) -o math_expr && echo "Compilation successful"
 
 $(LIBSTOMACH):
-	$(MAKE) -C ..
+	$(MAKE) $(if $(DEBUG),DEBUG=1,) $(if $(FSANITIZE),FSANITIZE=1,) -C ..
 
