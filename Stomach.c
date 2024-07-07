@@ -104,6 +104,7 @@ void  Stomach_init(struct Stomach* stomach)
   stomach->lexer.token_stack.data = stomach->token_stack;
   stomach->lexer.token_stack.fill_pointer = stomach->token_stack;
   stomach->lexer.token_stack.capacity = STOMACH_TOKEN_STACK_SIZE;
+  stomach->lexer.state = kLexerEof;
   stomach->parser.arena_parse_tree.data = stomach->memory_parse_tree;
   stomach->parser.arena_parse_tree.fill_pointer = stomach->memory_parse_tree;
   stomach->parser.arena_parse_tree.capacity = STOMACH_PARSE_TREE_SIZE;
@@ -121,6 +122,7 @@ void  Stomach_reset(struct Stomach* stomach)
 void  Stomach_Lexer_set_input_file(struct Stomach_Lexer* lexer, int fd)
 {
   lexer->fd = fd;
+  lexer->state = 0;
 }
 
 void  Stomach_Lexer_push_input_string(struct Stomach_Lexer* lexer, Stomach_String input_string)
@@ -157,7 +159,6 @@ struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Fun
         else if (size == 0)
         {
           lexer->state = kLexerEof;
-          break;
         }
         else if ((Stomach_u64) size > Stomach_Array_avaliable(&lexer->input_string))
         {
@@ -170,12 +171,12 @@ struct Stomach_Token  Stomach_lex(struct Stomach_Lexer* lexer, Stomach_Lexer_Fun
         {
           Stomach_Lexer_push_input_string(lexer, (Stomach_String) {.string = lexer->read_string, .length = size});
         }
-        output = lexer_func(lexer->input);
+        output = lexer_func(lexer->input, lexer->state == kLexerEof);
       }
     }
     else if (lexer->input.length > 0)
     {
-      output = lexer_func(lexer->input);
+      output = lexer_func(lexer->input, lexer->state == kLexerEof);
     }
     if (Stomach_Slice_is_valid(output.data.content))
     {

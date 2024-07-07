@@ -149,7 +149,7 @@ struct Stomach
   uint8_t               memory_parse_tree[STOMACH_PARSE_TREE_SIZE];
 };
 
-typedef struct Stomach_Lexer_Output  (*Stomach_Lexer_Func)(Stomach_String input);
+typedef struct Stomach_Lexer_Output  (*Stomach_Lexer_Func)(Stomach_String input, Stomach_b32 is_eof);
 typedef Stomach_Parser_Output        (*Stomach_Parser_Func)(struct Stomach_Parser* parser, struct Stomach_Lexer* lexer);
 
 void  Stomach_init(struct Stomach* stomach);
