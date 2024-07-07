@@ -52,7 +52,7 @@ void* Stomach_Array_push(Stomach_Array* array, Stomach_u64 item_size)
 {
   uint8_t*  fill_pointer = array->fill_pointer;
   uint8_t*  fill_pointer_new = fill_pointer + item_size;
-  if (fill_pointer_new > (fill_pointer + array->capacity))
+  if (fill_pointer_new > ((uint8_t*)array->data + array->capacity))
   {
     assert("Arena overflow");
     fill_pointer = NULL;
