@@ -79,6 +79,17 @@ Stomach_b32 Stomach_Slice_is_valid(struct Stomach_Slice slice)
   return (slice.data != NULL);
 }
 
+char  Stomach_String_peek(Stomach_String string)
+{
+  return string.string[0];
+}
+
+void  Stomach_String_consume(Stomach_String* string, Stomach_u64 amount)
+{
+  string->string += amount;
+  string->length -= amount;
+}
+
 void  Stomach_init(struct Stomach* stomach)
 {
   stomach->arena_temporary.data = stomach->memory_temporary;

@@ -76,6 +76,8 @@ typedef struct Stomach_Slice Stomach_String;
 typedef struct Stomach_Slice Stomach_Parser_Output;
 
 Stomach_b32 Stomach_Slice_is_valid(struct Stomach_Slice slice);
+char        Stomach_String_peek(Stomach_String string);
+void        Stomach_String_consume(Stomach_String* string, Stomach_u64 amount);
 
 struct Stomach_Token
 {
